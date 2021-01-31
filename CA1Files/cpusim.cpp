@@ -56,9 +56,8 @@ int main (int argc, char* argv[])
 	char decWord[4];
 	char binWord[8];
 	FILE* fin = fopen(argv[1], "r");
-	if(fin! = NULL){
-    	fgets(decWord, 4, fin); // read in the decimal representation of 8 bits (max 3 decimal places, plus a newline)
-    	for(int i = 1; i < 4; i++){ // replace any newline characters
+	while(fgets(decWord, 4, fin)){// read in the decimal representation of 8 bits (max 3 decimal places, plus a newline)
+    	for(int i = 0; i < 4; i++){ // replace any newline characters
     		if(decWord[i] == '\n'){
     			decWord[i] = 0;
     		}

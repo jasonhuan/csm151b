@@ -40,11 +40,6 @@ class CPUStat {
 
 };
 
-
-/*
-Put/Define any helper function/definitions you need here
-*/
-
 int main (int argc, char* argv[])
 {
 	printf("argc: %d\nargv[0]: %s, argv[1]: %s\n", argc, argv[0], argv[1]); // sanity check
@@ -52,26 +47,62 @@ int main (int argc, char* argv[])
 	/* This is the front end of your project. 
 	You need to first read the instructions that are stored in a file and load them into an instruction memory. 
 	*/
-
-	char decWord[4];
-	char binWord[8];
 	FILE* fin = fopen(argv[1], "r");
-	while(fgets(decWord, 4, fin)){// read in the decimal representation of 8 bits (max 3 decimal places, plus a newline)
+
+	/* Define your Instruction memory here. Each cell should store 1 byte. You can define the memory either dynamically, or define it as a fixed size with size 4MB (i.e., 4096 lines). Each instruction is 32 bits (i.e., 4 lines, saved in little-endian mode). 
+	Each line in the input file is stored as an unsigned char and is 1 byte (each four lines are one instruction). You need to read the file line by line and store it into the memory. You may need a mechanism to convert these values to bits so that you can read opcodes, operands, etc. 
+	*/ 
+	char instMem[4096][8];
+	char decWord[5];
+	int count = 0;
+	int num = 0;
+	string x;
+	while(fgets(decWord, 5, fin)){// read in the decimal representation of 8 bits (max 3 decimal places, plus a newline, plus another for some reason to allow flushing the newlines)
+    	//printf("line %d:\n", count);
     	for(int i = 0; i < 4; i++){ // replace any newline characters
     		if(decWord[i] == '\n'){
     			decWord[i] = 0;
     		}
+    		//printf("decWord[%d]: %c\n", i, decWord[i]);
     	}
-    	puts(decWord); // print
+    	
+    	x = string(decWord);
+    	num = stoi(x);
+    	printf("num: %d\n", num);
+    	int binaryLoop = 0;
+    	while(num != 0){
+    		if(num % 2 == 1){
+    			instMem[count][binaryLoop] = 1;
+    			//printf("1");
+    		} else {
+    			instMem[count][binaryLoop] = 0;
+    			//printf("0");
+    		}
+    		num = num / 2;
+    		binaryLoop++;
+    	}
+    	//printf("\ninput: %s\n", decWord); // print
+    	count++;
   	}
   	fclose(fin);
-	
 
-	/* Define your Instruction memory here. Each cell should store 1 byte. You can define the memory either dynamically, or define it as a fixed size with size 4MB (i.e., 4096 lines). Each instruction is 32 bits (i.e., 4 lines, saved in little-endian mode). 
+  	// this loop prints memory contents
+  	printf("\n");
+  	for(int a = 0; a < count; a++){
+		for(int i = 7; i >= 0; i--){
+			if(instMem[a][i] == 1){
+				printf("1");
+			} else {
+				printf("0");
+			}
+			if(i == 4)
+				printf(" ");
+		}	
+		printf("\n");
+		if(a % 4 == 3)
+			printf("\n");
+	}
 	
-	Each line in the input file is stored as an unsigned char and is 1 byte (each four lines are one instruction). You need to read the file line by line and store it into the memory. You may need a mechanism to convert these values to bits so that you can read opcodes, operands, etc. 
-	*/ 
-	//instMem = ... 
 
 	
 

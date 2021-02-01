@@ -11,13 +11,21 @@ Add all the required standard and developed libraries here
 class CPU {
 
 public:
+	unsigned char fetchedInstruction[32];
+	unsigned int PC;
 
-	CPU() {
-		// constructor
+	CPU(int _PC) {
+		PC = _PC;
 	}
 
-	void Fetch() {
+	void Fetch(char** _instMem) {
 		// fetch the next instruction from the input
+		for(int i = PC; i < PC+4; i++){ // each byte
+			for(int j = 0; j < 8; j++){ // each bit
+				fetchedInstruction[((i-PC)*8)+j] = _instMem[i][j];
+			}
+		}
+
 	}
 
 	void Decode() {
@@ -104,12 +112,10 @@ int main (int argc, char* argv[])
 	}
 	
 
-	
-
 	/* Instantiate your CPU object here.  CPU class is the main class in this project that defines different components of the processor. 
 	CPU class also has different functions for each stage (e.g., fetching an instruction, decoding, etc.). 
 	*/
-    //CPU myCPU ...  // call the approriate constructor here to initialize the processor...  
+    CPU myCPU = CPU(0);  // call the approriate constructor here to initialize the processor...  
 	// make sure to create a variable for PC and resets it to zero (e.g., unsigned int PC = 0); 
 
 	/* Instatiate your CPUStat object here. CPUStat class is responsible to keep track of all the required statistics. */
@@ -119,20 +125,20 @@ int main (int argc, char* argv[])
 	/* OPTIONAL: Instantiate your Instruction object here. */
 	//Instruction myInst; 
 
-	/*
+
 	while (1) // processor's main loop. Each iteration is equal to one clock cycle.  
 	{
 		//fetch
-		... = myCPU.Fetch(...) // fetching the instruction
+		//... = myCPU.Fetch(...) // fetching the instruction
 
 		// decode
-		... = myCPU.Decode(...) // decoding
+		//... = myCPU.Decode(...) // decoding
 
 		// rest will be added in the next projects ... 
 
 		// we should break the loop if the current instruction is BREAK instruction (i.e., if opcode == 0)
 	}
-	*/
+
 
 	// clean up the memory (if any)
 

@@ -18,18 +18,25 @@ public:
 		PC = _PC;
 	}
 
-	void Fetch(char** _instMem) {
+	void Fetch(char _instMem[4096][8]) {
 		// fetch the next instruction from the input
 		for(int i = PC; i < PC+4; i++){ // each byte
 			for(int j = 0; j < 8; j++){ // each bit
 				fetchedInstruction[((i-PC)*8)+j] = _instMem[i][j];
 			}
 		}
-
 	}
 
 	void Decode() {
 		// decode the currently fetched instruction
+		for(int i = 0; i < 32; i++){
+			if(fetchedInstruction[i] == 1){
+				printf("fetchedInstruction[%d]: 1", i);
+			} else if (fetchedInstruction[i] == 0){
+				printf("fetchedInstruction[%d]: 0", i);
+			}
+			printf("\n");
+		}
 	}
 };
 
@@ -129,8 +136,8 @@ int main (int argc, char* argv[])
 	while (1) // processor's main loop. Each iteration is equal to one clock cycle.  
 	{
 		//fetch
-		//... = myCPU.Fetch(...) // fetching the instruction
-
+		myCPU.Fetch(instMem); // fetching the instruction
+		myCPU.Decode();
 		// decode
 		//... = myCPU.Decode(...) // decoding
 

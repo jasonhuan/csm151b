@@ -69,8 +69,8 @@ public:
 		for(int i = 0; i < 32; i++){
 			if(i < 7){
 
-				//check END opcode
-				if(i < 7){
+				//count number of 0's for END opcode
+				if(fetchedInstruction[i] == 0){
 					endCounter++;
 				}
 
@@ -112,14 +112,14 @@ public:
 			}
 
 			if(fetchedInstruction[i] == 1){
-				printf("fetchedInstruction[%d]: 1\n", i);
+				//printf("fetchedInstruction[%d]: 1\n", i);
 			} else if (fetchedInstruction[i] == 0){
-				printf("fetchedInstruction[%d]: 0\n", i);
+				//printf("fetchedInstruction[%d]: 0\n", i);
 			}
 		}
 
-		printf("_opcode:%s\n", _opcode.c_str());
-		printf("_rd:%s\n", _rd.c_str());
+		printf("_opcode:%s\n\n", _opcode.c_str());
+		//printf("_rd:%s\n", _rd.c_str());
 
 		decodedInstruction.opcode = _opcode;
 		decodedInstruction.funct3 = _funct3;
@@ -142,15 +142,17 @@ public:
 			decodedInstruction.type = "S";
 			decodedInstruction.imm = _funct7 + _rd;
 			decodedInstruction.rs2 = _rs2;
+		} else if (_opcode == "1100011"){ // B-type
+			decodedInstruction.rs2 = _rs2;
+			decodedInstruction.imm = _funct7 + _rd;
 		}
 
 		printf("CPU's decodedInstruction.opcode:%s\n", decodedInstruction.opcode.c_str());
-
+		//printf("endCounter:%d\n", endCounter);
 
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
 			return false;
 		}
-		//printf("endCounter:%d", endCounter);
 
 		return true;
 	}
@@ -162,27 +164,50 @@ public:
 	int numR_type;
 	int numI_type;
 	int numS_type;
+	int numB_type;
+	int numU_type;
+	int numJ_type;
 	int numSW;
 	int numLW;
 	int numADD;
 
 	CPU* trackCPU;
 
-	CPUStat(CPU _trackCPU){
+	CPUStat(CPU& _trackCPU){
 		trackCPU = &(_trackCPU);
 
 		numFetched = 0;
 		numR_type = 0;
 		numI_type = 0;
 		numS_type = 0;
+		numB_type = 0;
+		numU_type = 0;
+		numJ_type = 0;
 		numSW = 0;
 		numLW = 0;
 		numADD = 0;
 	}
 
 	void log(){
+		numFetched++;
+		printf("decodedInstruction.opcode: %s\n", trackCPU->decodedInstruction.opcode.c_str());
 		if(trackCPU->decodedInstruction.type == "R"){
 			numR_type++;
+
+			//check for ADD
+			if(trackCPU->decodedInstruction.funct3 == "000" && trackCPU->decodedInstruction.funct7 == "0000000"){
+				numADD++;
+			}
+		} else if(trackCPU->decodedInstruction.type == "I"){
+			numI_type++;
+
+			//check for LW
+			if(trackCPU->decodedInstruction.opcode == "0000011"){
+				numLW++;
+			}
+		} else if(trackCPU->decodedInstruction.type == "S"){
+			numS_type++;
+			numSW++;
 		}
 	}
 
@@ -269,18 +294,20 @@ int main (int argc, char* argv[])
 
     int counter = 0;
     bool keepGoing = true;
-	while (keepGoing) // processor's main loop. Each iteration is equal to one clock cycle.  
+	while (1) // processor's main loop. Each iteration is equal to one clock cycle.  
 	{
 		printf("counter: %d\n", counter++);
+
 		//fetch
-		myCPU.Fetch(); // fetching the instruction
+		myCPU.Fetch();
 
 		// decode
 		keepGoing = myCPU.Decode();
 
-		if(keepGoing == false){
-			printf("END signal reached");
-		}
+		if(keepGoing)
+			myStat.log();
+		else
+			break;
 
 		// rest will be added in the next projects ... 
 
@@ -291,7 +318,18 @@ int main (int argc, char* argv[])
 	// clean up the memory (if any)
 
 	// print the stats
+	printf("%d\n", myStat.numFetched);
+
+	printf("%d, ", myStat.numR_type);
+	printf("%d, ", myStat.numI_type);
+	printf("%d, ", myStat.numS_type);
+	printf("%d, ", myStat.numB_type);
+	printf("%d, ", myStat.numU_type);
+	printf("%d\n", myStat.numJ_type);
+
+	printf("%d, ", myStat.numSW);
+	printf("%d, ", myStat.numLW);
+	printf("%d\n", myStat.numADD);
 
 	return 0; 
-
 }

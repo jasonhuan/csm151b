@@ -50,15 +50,6 @@ public:
 	bool Decode() {
 		int endCounter = 0;
 
-		
-		char opcode[7];
-		char rd[5];
-		char funct3[3];
-		char rs1[5];
-		char rs2[5];
-		char funct7[7];
-		
-
 		string _opcode;
 		string _rd;
 		string _funct3;
@@ -118,7 +109,7 @@ public:
 			}
 		}
 
-		//printf("_opcode:%s\n\n", _opcode.c_str());
+		printf("_opcode:%s\n\n", _opcode.c_str());
 		//printf("_rd:%s\n", _rd.c_str());
 
 		decodedInstruction.opcode = _opcode;
@@ -130,7 +121,7 @@ public:
 			decodedInstruction.rd = _rd;
 			decodedInstruction.rs2 = _rs2;
 			decodedInstruction.funct7 = _funct7;
-		} else if (_opcode == "00100011"){ // I-type
+		} else if (_opcode == "0010011"){ // I-type
 			decodedInstruction.type = "I";
 			decodedInstruction.rd = _rd;
 			decodedInstruction.imm = _funct7 + _rs2;
@@ -309,10 +300,15 @@ int main (int argc, char* argv[])
 		// decode
 		keepGoing = myCPU.Decode();
 
-		if(keepGoing)
+		if(keepGoing){
 			myStat.log();
-		else
+			printf("%d,", myStat.numR_type);
+			printf("%d,", myStat.numI_type);
+			printf("%d,", myStat.numS_type);
+			printf("%d,", myStat.numB_type);
+		} else{
 			break;
+		}
 
 		// rest will be added in the next projects ... 
 

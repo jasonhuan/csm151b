@@ -21,7 +21,7 @@ struct Instruction {
 class CPU {
 
 public:
-	unsigned char fetchedInstruction[32];
+	unsigned char fetchedInstruction[32]; // store fetched instruction in 32-bit unsigned char array
 	Instruction decodedInstruction;
 	unsigned int PC;
 	char CPUinstMem[4096][8];

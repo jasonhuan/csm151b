@@ -24,24 +24,18 @@ public:
 	unsigned char fetchedInstruction[32]; // store fetched instruction in 32-bit unsigned char array
 	Instruction decodedInstruction;
 	unsigned int PC;
-	char CPUinstMem[4096][8];
+	char(* CPUinstMem)[4096][8];
 
-	CPU(int _PC, char _instMem[4096][8]) {
+	CPU(int _PC, char (&_instMem)[4096][8]) {
 		PC = _PC;
-
-		//copy external instMem into CPU's instMem (optimally this would be done with pass-by-reference, but pointers are hard)
-		for(int i = 0; i < 4096; i++){
-			for(int j = 0; j < 8; j++){
-				CPUinstMem[i][j] = _instMem[i][j];
-			}
-		}
+		CPUinstMem = &(_instMem);
 	}
 
 	void Fetch() {
 		// fetch the next instruction from the input
 		for(int i = PC; i < PC+4; i++){ // each byte
 			for(int j = 0; j < 8; j++){ // each bit
-				fetchedInstruction[((i-PC)*8)+j] = CPUinstMem[i][j];
+				fetchedInstruction[((i-PC)*8)+j] = (*CPUinstMem)[i][j];
 			}
 		}
 		PC += 4; // increment to next PC

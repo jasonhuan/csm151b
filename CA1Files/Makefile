@@ -1,5 +1,5 @@
 cpusim: cpusim.cpp
-	g++ *.cpp -o cpusim
+	g++ -std=c++11 *.cpp -o cpusim
 
 debug: cpusim trace/debug/instMem.txt
 	./cpusim trace/debug/instMem.txt

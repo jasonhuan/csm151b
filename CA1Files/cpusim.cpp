@@ -143,6 +143,7 @@ public:
 			decodedInstruction.imm = _funct7 + _rd;
 			decodedInstruction.rs2 = _rs2;
 		} else if (_opcode == "1100011"){ // B-type
+			decodedInstruction.type = "B";
 			decodedInstruction.rs2 = _rs2;
 			decodedInstruction.imm = _funct7 + _rd;
 		}
@@ -208,6 +209,8 @@ public:
 		} else if(trackCPU->decodedInstruction.type == "S"){
 			numS_type++;
 			numSW++;
+		} else if(trackCPU->decodedInstruction.type == "B"){
+			numB_type++;
 		}
 	}
 
@@ -322,15 +325,15 @@ int main (int argc, char* argv[])
 	// print the stats
 	printf("%d\n", myStat.numFetched);
 
-	printf("%d, ", myStat.numR_type);
-	printf("%d, ", myStat.numI_type);
-	printf("%d, ", myStat.numS_type);
-	printf("%d, ", myStat.numB_type);
-	printf("%d, ", myStat.numU_type);
+	printf("%d,", myStat.numR_type);
+	printf("%d,", myStat.numI_type);
+	printf("%d,", myStat.numS_type);
+	printf("%d,", myStat.numB_type);
+	printf("%d,", myStat.numU_type);
 	printf("%d\n", myStat.numJ_type);
 
-	printf("%d, ", myStat.numSW);
-	printf("%d, ", myStat.numLW);
+	printf("%d,", myStat.numSW);
+	printf("%d,", myStat.numLW);
 	printf("%d\n", myStat.numADD);
 
 	return 0; 

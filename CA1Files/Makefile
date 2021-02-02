@@ -1,5 +1,14 @@
 cpusim: cpusim.cpp
 	g++ *.cpp -o cpusim
 
-run: cpusim trace/debug/instMem.txt
+debug: cpusim trace/debug/instMem.txt
 	./cpusim trace/debug/instMem.txt
+
+test1: cpusim trace/test/instMem1.txt
+	./cpusim trace/test/instMem1.txt
+
+test2: cpusim trace/test/instMem2.txt
+	./cpusim trace/test/instMem2.txt
+
+clean: cpusim
+	rm ./cpusim

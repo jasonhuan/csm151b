@@ -44,7 +44,7 @@ public:
 				fetchedInstruction[((i-PC)*8)+j] = CPUinstMem[i][j];
 			}
 		}
-		PC += 4;
+		PC += 4; // increment to next PC
 	}
 
 	bool Decode() {
@@ -57,6 +57,7 @@ public:
 		string _rs2;
 		string _funct7;
 
+		// parse instruction into fields
 		for(int i = 0; i < 32; i++){
 			if(i < 7){
 
@@ -109,7 +110,7 @@ public:
 			}
 		}
 
-		printf("_opcode:%s\n\n", _opcode.c_str());
+		//printf("_opcode:%s\n\n", _opcode.c_str());
 		//printf("_rd:%s\n", _rd.c_str());
 
 		decodedInstruction.opcode = _opcode;
@@ -219,12 +220,12 @@ int main (int argc, char* argv[])
 	/* Define your Instruction memory here. Each cell should store 1 byte. You can define the memory either dynamically, or define it as a fixed size with size 4MB (i.e., 4096 lines). Each instruction is 32 bits (i.e., 4 lines, saved in little-endian mode). 
 	Each line in the input file is stored as an unsigned char and is 1 byte (each four lines are one instruction). You need to read the file line by line and store it into the memory. You may need a mechanism to convert these values to bits so that you can read opcodes, operands, etc. 
 	*/ 
-	char instMem[4096][8];
+	char instMem[4096][8]; //static allocation
 	char decWord[5];
 	int count = 0;
 	int num = 0;
 	string x;
-	while(fgets(decWord, 5, fin)){// read in the decimal representation of 8 bits (max 3 decimal places, plus a newline, plus another for some reason to allow flushing the newlines)
+	while(fgets(decWord, 5, fin)){// read in the decimal representation of 8 bits (5 values: max 3 decimal places, plus a newline, plus another to flush the newlines)
     	//printf("line %d:\n", count);
     	for(int i = 0; i < 4; i++){ // replace any newline characters
     		if(decWord[i] == '\n'){
@@ -237,7 +238,7 @@ int main (int argc, char* argv[])
     	num = stoi(x);
     	//printf("num: %d\n", num);
     	int binaryLoop = 0;
-    	while(num != 0){
+    	while(num != 0){ // convert decimal number into binary and store in instMem
     		if(num % 2 == 1){
     			instMem[count][binaryLoop] = 1;
     			//printf("1");
@@ -248,7 +249,7 @@ int main (int argc, char* argv[])
     		num = num / 2;
     		binaryLoop++;
     	}
-    	//printf("\ninput: %s\n", decWord); // print
+    	//printf("\ninput: %s\n", decWord);
     	count++;
   	}
   	fclose(fin);
@@ -302,17 +303,11 @@ int main (int argc, char* argv[])
 
 		if(keepGoing){
 			myStat.log();
-			printf("%d,", myStat.numR_type);
-			printf("%d,", myStat.numI_type);
-			printf("%d,", myStat.numS_type);
-			printf("%d,", myStat.numB_type);
-		} else{
+		} else { // we should break the loop if the current instruction is BREAK instruction (i.e., if opcode == 0)
 			break;
 		}
 
 		// rest will be added in the next projects ... 
-
-		// we should break the loop if the current instruction is BREAK instruction (i.e., if opcode == 0)
 	}
 
 

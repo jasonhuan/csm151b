@@ -7,39 +7,6 @@ using namespace std;
 Add all the required standard and developed libraries here
 */
 
-
-class CPU {
-
-public:
-	unsigned char fetchedInstruction[32];
-	unsigned int PC;
-
-	CPU(int _PC) {
-		PC = _PC;
-	}
-
-	void Fetch(char _instMem[4096][8]) {
-		// fetch the next instruction from the input
-		for(int i = PC; i < PC+4; i++){ // each byte
-			for(int j = 0; j < 8; j++){ // each bit
-				fetchedInstruction[((i-PC)*8)+j] = _instMem[i][j];
-			}
-		}
-	}
-
-	void Decode() {
-		// decode the currently fetched instruction
-		for(int i = 0; i < 32; i++){
-			if(fetchedInstruction[i] == 1){
-				printf("fetchedInstruction[%d]: 1", i);
-			} else if (fetchedInstruction[i] == 0){
-				printf("fetchedInstruction[%d]: 0", i);
-			}
-			printf("\n");
-		}
-	}
-};
-
 struct Instruction {
 	string opcode;
 	string rd;
@@ -51,7 +18,173 @@ struct Instruction {
 	string type;
 };
 
+class CPU {
+
+public:
+	unsigned char fetchedInstruction[32];
+	Instruction decodedInstruction;
+	unsigned int PC;
+	char CPUinstMem[4096][8];
+
+	CPU(int _PC, char _instMem[4096][8]) {
+		PC = _PC;
+
+		//copy external instMem into CPU's instMem (optimally this would be done with pass-by-reference, but pointers are hard)
+		for(int i = 0; i < 4096; i++){
+			for(int j = 0; j < 8; j++){
+				CPUinstMem[i][j] = _instMem[i][j];
+			}
+		}
+	}
+
+	void Fetch() {
+		// fetch the next instruction from the input
+		for(int i = PC; i < PC+4; i++){ // each byte
+			for(int j = 0; j < 8; j++){ // each bit
+				fetchedInstruction[((i-PC)*8)+j] = CPUinstMem[i][j];
+			}
+		}
+		PC += 4;
+	}
+
+	bool Decode() {
+		int endCounter = 0;
+
+		
+		char opcode[7];
+		char rd[5];
+		char funct3[3];
+		char rs1[5];
+		char rs2[5];
+		char funct7[7];
+		
+
+		string _opcode;
+		string _rd;
+		string _funct3;
+		string _rs1;
+		string _rs2;
+		string _funct7;
+
+		for(int i = 0; i < 32; i++){
+			if(i < 7){
+
+				//check END opcode
+				if(i < 7){
+					endCounter++;
+				}
+
+				if(fetchedInstruction[i] == 1){
+					_opcode.insert(0, "1");
+				} else if (fetchedInstruction[i] == 0){
+					_opcode.insert(0, "0");
+				}
+			} else if (i >= 7 && i < 12){
+				if(fetchedInstruction[i] == 1){
+					_rd.insert(0, "1");
+				} else if (fetchedInstruction[i] == 0){
+					_rd.insert(0, "0");
+				}
+			} else if (i >= 12 && i < 15){
+				if(fetchedInstruction[i] == 1){
+					_funct3.insert(0, "1");
+				} else if (fetchedInstruction[i] == 0){
+					_funct3.insert(0, "0");
+				}
+			} else if (i >= 15 && i < 20){
+				if(fetchedInstruction[i] == 1){
+					_rs1.insert(0, "1");
+				} else if (fetchedInstruction[i] == 0){
+					_rs1.insert(0, "0");
+				}
+			} else if (i >= 20 && i < 25){
+				if(fetchedInstruction[i] == 1){
+					_rs2.insert(0, "1");
+				} else if (fetchedInstruction[i] == 0){
+					_rs2.insert(0, "0");
+				}
+			} else if (i >= 25 && i < 32){
+				if(fetchedInstruction[i] == 1){
+					_funct7.insert(0, "1");
+				} else if (fetchedInstruction[i] == 0){
+					_funct7.insert(0, "0");
+				}
+			}
+
+			if(fetchedInstruction[i] == 1){
+				printf("fetchedInstruction[%d]: 1\n", i);
+			} else if (fetchedInstruction[i] == 0){
+				printf("fetchedInstruction[%d]: 0\n", i);
+			}
+		}
+
+		printf("_opcode:%s\n", _opcode.c_str());
+		printf("_rd:%s\n", _rd.c_str());
+
+		decodedInstruction.opcode = _opcode;
+		decodedInstruction.funct3 = _funct3;
+		decodedInstruction.rs1 = _rs1;
+
+		if(_opcode == "0110011") { // R-type
+			decodedInstruction.type = "R";
+			decodedInstruction.rd = _rd;
+			decodedInstruction.rs2 = _rs2;
+			decodedInstruction.funct7 = _funct7;
+		} else if (_opcode == "00100011"){ // I-type
+			decodedInstruction.type = "I";
+			decodedInstruction.rd = _rd;
+			decodedInstruction.imm = _funct7 + _rs2;
+		} else if (_opcode == "0000011"){ // LW
+			decodedInstruction.type = "I";
+			decodedInstruction.rd = _rd;
+			decodedInstruction.imm = _funct7 + _rs2;
+		} else if (_opcode == "0100011"){ // SW
+			decodedInstruction.type = "S";
+			decodedInstruction.imm = _funct7 + _rd;
+			decodedInstruction.rs2 = _rs2;
+		}
+
+		printf("CPU's decodedInstruction.opcode:%s\n", decodedInstruction.opcode.c_str());
+
+
+		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
+			return false;
+		}
+		//printf("endCounter:%d", endCounter);
+
+		return true;
+	}
+};
+
 class CPUStat {
+public:
+	int numFetched;
+	int numR_type;
+	int numI_type;
+	int numS_type;
+	int numSW;
+	int numLW;
+	int numADD;
+
+	CPU* trackCPU;
+
+	CPUStat(CPU _trackCPU){
+		trackCPU = &(_trackCPU);
+
+		numFetched = 0;
+		numR_type = 0;
+		numI_type = 0;
+		numS_type = 0;
+		numSW = 0;
+		numLW = 0;
+		numADD = 0;
+	}
+
+	void log(){
+		if(trackCPU->decodedInstruction.type == "R"){
+			numR_type++;
+		}
+	}
 
 };
 
@@ -83,7 +216,7 @@ int main (int argc, char* argv[])
     	
     	x = string(decWord);
     	num = stoi(x);
-    	printf("num: %d\n", num);
+    	//printf("num: %d\n", num);
     	int binaryLoop = 0;
     	while(num != 0){
     		if(num % 2 == 1){
@@ -100,6 +233,8 @@ int main (int argc, char* argv[])
     	count++;
   	}
   	fclose(fin);
+
+  	printf("number of lines read:%d", count);
 
   	// this loop prints memory contents
   	printf("\n");
@@ -122,24 +257,30 @@ int main (int argc, char* argv[])
 	/* Instantiate your CPU object here.  CPU class is the main class in this project that defines different components of the processor. 
 	CPU class also has different functions for each stage (e.g., fetching an instruction, decoding, etc.). 
 	*/
-    CPU myCPU = CPU(0);  // call the approriate constructor here to initialize the processor...  
+    CPU myCPU = CPU(0, instMem);  // call the approriate constructor here to initialize the processor...  
 	// make sure to create a variable for PC and resets it to zero (e.g., unsigned int PC = 0); 
 
 	/* Instatiate your CPUStat object here. CPUStat class is responsible to keep track of all the required statistics. */
-    //CPUStat myStat ... 
+    CPUStat myStat = CPUStat(myCPU);
 
 
 	/* OPTIONAL: Instantiate your Instruction object here. */
 	//Instruction myInst; 
 
-
-	while (1) // processor's main loop. Each iteration is equal to one clock cycle.  
+    int counter = 0;
+    bool keepGoing = true;
+	while (keepGoing) // processor's main loop. Each iteration is equal to one clock cycle.  
 	{
+		printf("counter: %d\n", counter++);
 		//fetch
-		myCPU.Fetch(instMem); // fetching the instruction
-		myCPU.Decode();
+		myCPU.Fetch(); // fetching the instruction
+
 		// decode
-		//... = myCPU.Decode(...) // decoding
+		keepGoing = myCPU.Decode();
+
+		if(keepGoing == false){
+			printf("END signal reached");
+		}
 
 		// rest will be added in the next projects ... 
 

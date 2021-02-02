@@ -118,7 +118,7 @@ public:
 			}
 		}
 
-		printf("_opcode:%s\n\n", _opcode.c_str());
+		//printf("_opcode:%s\n\n", _opcode.c_str());
 		//printf("_rd:%s\n", _rd.c_str());
 
 		decodedInstruction.opcode = _opcode;
@@ -147,7 +147,7 @@ public:
 			decodedInstruction.imm = _funct7 + _rd;
 		}
 
-		printf("CPU's decodedInstruction.opcode:%s\n", decodedInstruction.opcode.c_str());
+		//printf("CPU's decodedInstruction.opcode:%s\n", decodedInstruction.opcode.c_str());
 		//printf("endCounter:%d\n", endCounter);
 
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
@@ -190,7 +190,7 @@ public:
 
 	void log(){
 		numFetched++;
-		printf("decodedInstruction.opcode: %s\n", trackCPU->decodedInstruction.opcode.c_str());
+		//printf("decodedInstruction.opcode: %s\n", trackCPU->decodedInstruction.opcode.c_str()); //debug
 		if(trackCPU->decodedInstruction.type == "R"){
 			numR_type++;
 
@@ -215,7 +215,7 @@ public:
 
 int main (int argc, char* argv[])
 {
-	printf("argc: %d\nargv[0]: %s, argv[1]: %s\n", argc, argv[0], argv[1]); // sanity check
+	//printf("argc: %d\nargv[0]: %s, argv[1]: %s\n", argc, argv[0], argv[1]); // sanity check
 	
 	/* This is the front end of your project. 
 	You need to first read the instructions that are stored in a file and load them into an instruction memory. 
@@ -259,9 +259,10 @@ int main (int argc, char* argv[])
   	}
   	fclose(fin);
 
-  	printf("number of lines read:%d", count);
+  	//printf("number of lines read:%d\n", count);
 
   	// this loop prints memory contents
+  	/*
   	printf("\n");
   	for(int a = 0; a < count; a++){
 		for(int i = 7; i >= 0; i--){
@@ -277,6 +278,7 @@ int main (int argc, char* argv[])
 		if(a % 4 == 3)
 			printf("\n");
 	}
+	*/
 	
 
 	/* Instantiate your CPU object here.  CPU class is the main class in this project that defines different components of the processor. 
@@ -296,7 +298,7 @@ int main (int argc, char* argv[])
     bool keepGoing = true;
 	while (1) // processor's main loop. Each iteration is equal to one clock cycle.  
 	{
-		printf("counter: %d\n", counter++);
+		//printf("counter: %d\n", counter++);
 
 		//fetch
 		myCPU.Fetch();

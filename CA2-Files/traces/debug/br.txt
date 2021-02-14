@@ -1,0 +1,21 @@
+myBr:
+	0:		00500613		addi x12 x0 5
+	4:		06060463		beq x12 x0 104 <myEND>
+	8:		00c02223		sw x12 4(x0)
+	c:		00700693		addi x13 x0 7
+	10:		00c60463		beq x12 x12 8 <skipped>
+	14:		00f06693		ori x13 x0 15
+
+skipped:
+	18:		00402703		lw x14 4(x0)
+	1c:		40e687b3		sub x15 x13 x14
+	20:		00f02423		sw x15 8(x0)
+	24:		00000813		addi x16 x0 0
+
+loop:
+	28:		01060833		add x16 x12 x16
+	2c:		fff60613		addi x12 x12 -1
+	30:		02060e63		beq x12 x0 60 <myEND>
+	34:		fec60ae3		beq x12 x12 -12 <loop>
+
+//END (Note: myEND begins in address 0x6c of the InstMemory. Since memory is initialized to zero, jumping there acts as "END" instrucion.)

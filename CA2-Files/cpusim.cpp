@@ -18,11 +18,28 @@ struct Instruction {
 	string type;
 };
 
+struct ControlSignals {
+	int RegWrite;
+	int ALUSrc;
+	int Branch;
+	int MemRe;
+	int MemWr;
+	int MemtoReg;
+	string ALUOp;
+}
+
+// output of RegisterFile()
+struct ReadData {
+	string data1; // 32 bits
+	string data2; // 32 bits
+}
+
 class CPU {
 
 public:
 	unsigned char fetchedInstruction[32]; // store fetched instruction in 32-bit unsigned char array
 	Instruction decodedInstruction;
+	ControlSignals controllerSignals;
 	unsigned int PC;
 	char(* CPUinstMem)[4096][8];
 
@@ -137,11 +154,25 @@ public:
 		//printf("CPU's decodedInstruction.opcode:%s\n", decodedInstruction.opcode.c_str());
 		//printf("endCounter:%d\n", endCounter);
 
+		Controller();
+
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
 			return false;
 		}
 
 		return true;
+	}
+
+	// take instruction as input and create all required control signals
+	void Controller() {
+
+
+		// compute correct immediate once instruction is decoded
+	}
+
+	// [5 bits]: _read_reg1, _read_reg2, _write_reg; [32 bits]: _write_data, [1 bit]: _RegWrite
+	ReadData RegisterFile(string _read_reg1, string _read_reg2, string _write_data, string _write_reg, int _RegWrite) {
+
 	}
 };
 

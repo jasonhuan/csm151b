@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
 
 using namespace std;
@@ -42,10 +43,17 @@ public:
 	ControlSignals control;
 	unsigned int PC;
 	char(* CPUinstMem)[4096][8];
+	char RF[32][32];
+	ReadData RF_output;
 
 	CPU(int _PC, char (&_instMem)[4096][8]) {
 		PC = _PC;
 		CPUinstMem = &(_instMem);
+
+		//initialize x0 to 0;
+		for(int i = 0; i < 32; i++){
+			RF[0][i] = 0;
+		}
 	}
 
 	void Fetch() {
@@ -156,6 +164,9 @@ public:
 
 		Controller(decodedInstruction);
 
+		//printf("_rs1: %s, rs2: %s\n", _rs1.c_str(), _rs2.c_str());
+		RegisterFile(_rs1, _rs2, "", "", 0);
+
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
 			return false;
 		}
@@ -228,11 +239,17 @@ public:
 		// compute correct immediate once instruction is decoded
 	}
 
-	// [5 bits]: _read_reg1, _read_reg2, _write_reg; [32 bits]: _write_data, [1 bit]: _RegWrite
+	// _read_reg1[5], _read_reg2[5], _write_data[32], _write_reg[5], _RegWrite[1]
 	ReadData RegisterFile(string _read_reg1, string _read_reg2, string _write_data, string _write_reg, int _RegWrite) {
-		ReadData output;
-		return output;
+		int ulli1, ulli2;
+		ulli1 = (int) strtoull(_read_reg1.c_str(), NULL, 2);
+		ulli2 = (int) strtoull(_read_reg2.c_str(), NULL, 2);
+		//printf("The decimal equivalent is: %d, %d.\n", ulli1, ulli2);
+		RF_output.data1 = RF[ulli1];
+		RF_output.data2 = RF[ulli2];
+		return RF_output;
 	}
+
 };
 
 class CPUStat {

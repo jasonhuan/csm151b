@@ -26,20 +26,20 @@ struct ControlSignals {
 	int MemWr;
 	int MemtoReg;
 	string ALUOp;
-}
+};
 
 // output of RegisterFile()
 struct ReadData {
 	string data1; // 32 bits
 	string data2; // 32 bits
-}
+};
 
 class CPU {
 
 public:
 	unsigned char fetchedInstruction[32]; // store fetched instruction in 32-bit unsigned char array
 	Instruction decodedInstruction;
-	ControlSignals controllerSignals;
+	ControlSignals control;
 	unsigned int PC;
 	char(* CPUinstMem)[4096][8];
 
@@ -154,7 +154,7 @@ public:
 		//printf("CPU's decodedInstruction.opcode:%s\n", decodedInstruction.opcode.c_str());
 		//printf("endCounter:%d\n", endCounter);
 
-		Controller();
+		Controller(decodedInstruction);
 
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
 			return false;
@@ -164,15 +164,74 @@ public:
 	}
 
 	// take instruction as input and create all required control signals
-	void Controller() {
+	void Controller(Instruction& _Instruction) {
+		if(_Instruction.opcode == "0110011"){ // R-type
+			control.RegWrite = 1;
+			control.ALUSrc = 0;
+			control.Branch = 0;
+			control.MemRe = 0;
+			control.MemWr = 0;
+			control.MemtoReg = 0;
+			if(_Instruction.funct3 == "000"){ // ADD or SUB
+				if(_Instruction.funct7 == "0000000"){ // ADD
+					control.ALUOp = "0010"; // add
+				} else if(_Instruction.funct7 == "0100000"){ // SUB
+					control.ALUOp = "0110"; // subtract
+				}
+			} else if (_Instruction.funct3 == "110"){ // OR
+				control.ALUOp = "0001"; // OR
+			} else if (_Instruction.funct3 == "111"){ // AND
+				control.ALUOp = "0000"; // AND
+			}
 
+		} else if (_Instruction.opcode == "0010011"){ // I-type (excl. LW)
+			control.RegWrite = 1;
+			control.ALUSrc = 1;
+			control.Branch = 0;
+			control.MemRe = 0;
+			control.MemWr = 0;
+			control.MemtoReg = 0;
+			if(_Instruction.funct3 == "000") { // ADDI
+				control.ALUOp = "0010"; // add
+			} else if(_Instruction.funct3 == "110"){ // ORI
+				control.ALUOp = "0001"; // OR
+			} else if(_Instruction.funct3 == "111"){ // ANDI
+				control.ALUOp = "0000"; // AND
+			}
+
+		} else if (_Instruction.opcode == "0000011"){ // LW
+			control.RegWrite = 1;
+			control.ALUSrc = 1;
+			control.Branch = 0;
+			control.MemRe = 1;
+			control.MemWr = 0;
+			control.MemtoReg = 1;
+			control.ALUOp = "0010"; // add
+		} else if (_Instruction.opcode == "0100011"){ // S-type
+			control.RegWrite = 0;
+			control.ALUSrc = 1;
+			control.Branch = 0;
+			control.MemRe = 0;
+			control.MemWr = 1;
+			control.MemtoReg = 0;
+			control.ALUOp = "0010"; // add
+		} else if (_Instruction.opcode == "1100011"){ // B-type
+			control.RegWrite = 0;
+			control.ALUSrc = 0;
+			control.Branch = 1;
+			control.MemRe = 0;
+			control.MemWr = 0;
+			control.MemtoReg = 0;
+			control.ALUOp = "0110"; // subtract
+		}
 
 		// compute correct immediate once instruction is decoded
 	}
 
 	// [5 bits]: _read_reg1, _read_reg2, _write_reg; [32 bits]: _write_data, [1 bit]: _RegWrite
 	ReadData RegisterFile(string _read_reg1, string _read_reg2, string _write_data, string _write_reg, int _RegWrite) {
-
+		ReadData output;
+		return output;
 	}
 };
 

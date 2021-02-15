@@ -53,7 +53,7 @@ public:
 	unsigned int PC;
 	char(* CPUinstMem)[4096][8];
 	char RF[32][32];
-	char MEM[32*4][8];
+	char MEM[128][8];
 	ReadData RF_output;
 	ALUOutput ALU_output;
 	MemOutput MEM_output;
@@ -61,6 +61,13 @@ public:
 	CPU(int _PC, char (&_instMem)[4096][8]) {
 		PC = _PC;
 		CPUinstMem = &(_instMem);
+
+		//initialize all memory to 0
+		for(int i = 0; i < 128; i++){
+			for(int j = 0; j < 8; j++){
+				RF[i][j] = 0;
+			}
+		}
 	}
 
 	void Fetch() {
@@ -434,18 +441,25 @@ public:
 		MEM_output.memdata = ""; // flush memory output cache
 
 		int memAddress = (int) strtoull(ALU_output.result.c_str(), NULL, 2);
-
 		if(control.MemWr == 1){ // SW
-			for(int i = memAddress; i < memAddress + 4; i++){
+			printf("RF_output.data2.length(): %d\n", RF_output.data2.length());
+			while((int)RF_output.data2.length() < 32){
+				RF_output.data2.insert(0, "0");
+			}
+			printf("memAddress: %d\n", memAddress);
+			printf("RF_output.data2: %s\n", RF_output.data2.c_str());
+			for(int k = 0; k < 4; k++){
 				for(int j = 0; j < 8; j++){
-					MEM[i*4][j] = MEM_output.memdata[31-(i*4 + j)];
+					MEM[memAddress*4+4-k][j] = RF_output.data2[(k*8)+j];
+					//printf("RF_output.data2[%d]: %c\n", (k*8)+j, RF_output.data2[(k*8)+j]);
 				}
-			}			
+			}
 		}
 		if(control.MemRe == 1){ // LW
+			printf("memAddress: %d\n", memAddress);
 			for(int i = memAddress; i < memAddress + 4; i++){
 				for(int j = 0; j < 8; j++){
-					MEM_output.memdata.append(MEM[(i*4)+j]);
+					MEM_output.memdata.insert(0, MEM[(i*4)+j]);
 				}
 			}			
 		}

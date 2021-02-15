@@ -301,6 +301,7 @@ public:
 			}
 			printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 + data2;
+			printf("[add]: %d\n", temp_result);
 	    	int binaryLoop = 0;
 	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
 	    		if(temp_result % 2 == 1){
@@ -330,7 +331,7 @@ public:
 			}
 			printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 - data2;
-			printf("temp_result [sub]:%d\n", temp_result);
+			printf("[sub]: %d\n", temp_result);
 
 	    	int binaryLoop = 0;
 	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
@@ -347,6 +348,35 @@ public:
 
 		} else if (control.ALUOp == "0000"){ // AND
 			printf("ALU AND\n");
+			printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
+			int data1, data2;
+			if(RF_output.data1 == ""){
+				data1 = 0;
+			} else {
+				data1 = (int) strtoull(RF_output.data1.c_str(), NULL, 2);
+			}
+
+			if(RF_output.data2 == ""){
+				data2 = 0;
+			} else {
+				data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+			}
+			printf("data1: %d, data2: %d\n", data1, data2);
+			int temp_result = data1 & data2;
+			printf("[AND]: %d\n", temp_result);
+
+	    	int binaryLoop = 0;
+	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
+	    		if(temp_result % 2 == 1){
+	    			ALU_output.result.insert(0, "1");
+	    		} else {
+	    			ALU_output.result.insert(0, "0");
+	    		}
+	    		temp_result = temp_result / 2;
+	    		binaryLoop++;
+	    	}
+
+	    	printf("ALU_output.result:%s\n", ALU_output.result.c_str());
 
 		} else if (control.ALUOp == "0001"){ // OR
 			printf("ALU OR\n");
@@ -365,7 +395,7 @@ public:
 			}
 			printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 | data2;
-			//printf("temp_result [OR]:%d\n", temp_result);
+			printf("[OR]: %d\n", temp_result);
 
 	    	int binaryLoop = 0;
 	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
@@ -422,6 +452,18 @@ public:
 		numADD = 0;
 	}
 
+	void printRegisters() {
+		printf("//Register file:\n");
+		for (int i = 0; i < 32; i+=2){
+			printf("x%d: %s\tx%d: %s\n", i, trackCPU->RF[i], i+1, trackCPU->RF[i+1]);
+		}
+		printf("//END of Register file\n");
+	}
+
+	void printMemory() {
+		
+	}
+
 	void log(){
 		numFetched++;
 		//printf("decodedInstruction.opcode: %s\n", trackCPU->decodedInstruction.opcode.c_str()); //debug
@@ -451,7 +493,7 @@ public:
 
 int main (int argc, char* argv[])
 {
-	//printf("argc: %d\nargv[0]: %s, argv[1]: %s\n", argc, argv[0], argv[1]); // sanity check
+	printf("argc: %d\nargv[0]: %s, argv[1]: %s\n", argc, argv[0], argv[1]); // sanity check
 	
 	/* This is the front end of your project. 
 	You need to first read the instructions that are stored in a file and load them into an instruction memory. 
@@ -553,6 +595,18 @@ int main (int argc, char* argv[])
 		}
 
 		// rest will be added in the next projects ... 
+	}
+
+	if(argc == 3){
+		if(string(argv[2]) == "-d1"){
+			myStat.printRegisters();
+		}
+		else if (string(argv[2]) == "-d2"){
+			myStat.printMemory();
+		} else if (string(argv[2]) == "-d3"){
+			myStat.printRegisters();
+			myStat.printMemory();
+		}
 	}
 
 

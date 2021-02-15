@@ -431,15 +431,23 @@ public:
 	}
 
 	void Mem() {
-		MEM_output.memdata = ""; // flush memdata
+		MEM_output.memdata = ""; // flush memory output cache
 
 		int memAddress = (int) strtoull(ALU_output.result.c_str(), NULL, 2);
+
+		if(control.MemWr == 1){ // SW
+			for(int i = memAddress; i < memAddress + 4; i++){
+				for(int j = 0; j < 8; j++){
+					MEM[i*4][j] = MEM_output.memdata[31-(i*4 + j)];
+				}
+			}			
+		}
 		if(control.MemRe == 1){ // LW
 			for(int i = memAddress; i < memAddress + 4; i++){
 				for(int j = 0; j < 8; j++){
-					MEM_output.memdata.insert(0, MEM[((i-memAddress)*8)+j]);
+					MEM_output.memdata.append(MEM[(i*4)+j]);
 				}
-			}
+			}			
 		}
 	}
 
@@ -492,7 +500,15 @@ public:
 	}
 
 	void printMemory() {
-
+		for(int i = 0; i < 128; i+=4){
+			for(int j = 0; j < 4; j++){
+				printf("MEM[%d]: ", i+j);
+				for(int k = 0; k < 8; k++){
+					printf("%c", trackCPU->MEM[i+j][k]);
+				}
+				printf("\n");
+			}
+		}
 	}
 
 	void log(){

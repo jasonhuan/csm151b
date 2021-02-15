@@ -179,7 +179,7 @@ public:
 
 		Controller(decodedInstruction);
 
-		printf("_rs1: %s, _rs2: %s, type:%s\n", _rs1.c_str(), _rs2.c_str(), decodedInstruction.type.c_str());
+		//printf("_rs1: %s, _rs2: %s, type:%s\n", _rs1.c_str(), _rs2.c_str(), decodedInstruction.type.c_str());
 		RegisterFile(_rs1, _rs2, "0", "0", 0);
 
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
@@ -294,8 +294,8 @@ public:
 
 		// Operate ALU
 		if(control.ALUOp == "0010"){ // add
-			printf("ALU add\n");
-			printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
+			//printf("ALU add\n");
+			//printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
 			int data1, data2;
 			if(RF_output.data1 == ""){
 				data1 = 0;
@@ -312,9 +312,9 @@ public:
 					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
 				}
 			}
-			printf("data1: %d, data2: %d\n", data1, data2);
+			//printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 + data2;
-			printf("[add]: %d\n", temp_result);
+			//printf("[add]: %d\n", temp_result);
 	    	int binaryLoop = 0;
 	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
 	    		if(temp_result % 2 == 1){
@@ -326,10 +326,10 @@ public:
 	    		binaryLoop++;
 	    	}
 
-	    	printf("ALU_output.result:%s\n", ALU_output.result.c_str());
+	    	//printf("ALU_output.result:%s\n", ALU_output.result.c_str());
 		} else if (control.ALUOp == "0110"){ // subtract
-			printf("ALU subtract\n");
-			printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
+			//printf("ALU subtract\n");
+			//printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
 			int data1, data2;
 			if(RF_output.data1 == ""){
 				data1 = 0;
@@ -346,9 +346,9 @@ public:
 					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
 				}
 			}
-			printf("data1: %d, data2: %d\n", data1, data2);
+			//printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 - data2;
-			printf("[sub]: %d\n", temp_result);
+			//printf("[sub]: %d\n", temp_result);
 
 	    	int binaryLoop = 0;
 	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
@@ -361,11 +361,11 @@ public:
 	    		binaryLoop++;
 	    	}
 
-	    	printf("ALU_output.result:%s\n", ALU_output.result.c_str());
+	    	//printf("ALU_output.result:%s\n", ALU_output.result.c_str());
 
 		} else if (control.ALUOp == "0000"){ // AND
-			printf("ALU AND\n");
-			printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
+			//printf("ALU AND\n");
+			//printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
 			int data1, data2;
 			if(RF_output.data1 == ""){
 				data1 = 0;
@@ -382,9 +382,9 @@ public:
 					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
 				}
 			}
-			printf("data1: %d, data2: %d\n", data1, data2);
+			//printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 & data2;
-			printf("[AND]: %d\n", temp_result);
+			//printf("[AND]: %d\n", temp_result);
 
 	    	int binaryLoop = 0;
 	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
@@ -397,11 +397,11 @@ public:
 	    		binaryLoop++;
 	    	}
 
-	    	printf("ALU_output.result:%s\n", ALU_output.result.c_str());
+	    	//printf("ALU_output.result:%s\n", ALU_output.result.c_str());
 
 		} else if (control.ALUOp == "0001"){ // OR
-			printf("ALU OR\n");
-			printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
+			//printf("ALU OR\n");
+			//printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
 			int data1, data2;
 			if(RF_output.data1 == ""){
 				data1 = 0;
@@ -418,9 +418,9 @@ public:
 					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
 				}
 			}
-			printf("data1: %d, data2: %d\n", data1, data2);
+			//printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 | data2;
-			printf("[OR]: %d\n", temp_result);
+			//printf("[OR]: %d\n", temp_result);
 
 	    	int binaryLoop = 0;
 	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
@@ -433,7 +433,7 @@ public:
 	    		binaryLoop++;
 	    	}
 
-	    	printf("ALU_output.result:%s\n", ALU_output.result.c_str());
+	    	//printf("ALU_output.result:%s\n", ALU_output.result.c_str());
 		}
 	}
 
@@ -442,12 +442,12 @@ public:
 
 		int memAddress = (int) strtoull(ALU_output.result.c_str(), NULL, 2);
 		if(control.MemWr == 1){ // SW
-			printf("RF_output.data2.length(): %d\n", RF_output.data2.length());
+			//printf("RF_output.data2.length(): %d\n", RF_output.data2.length());
 			while((int)RF_output.data2.length() < 32){
 				RF_output.data2.insert(0, "0");
 			}
-			printf("memAddress: %d\n", memAddress);
-			printf("RF_output.data2: %s\n", RF_output.data2.c_str());
+			//printf("memAddress: %d\n", memAddress);
+			//printf("RF_output.data2: %s\n", RF_output.data2.c_str());
 			for(int k = 0; k < 4; k++){
 				for(int j = 0; j < 8; j++){
 					MEM[memAddress*4+4-k][j] = RF_output.data2[(k*8)+j];
@@ -456,7 +456,7 @@ public:
 			}
 		}
 		if(control.MemRe == 1){ // LW
-			printf("memAddress: %d\n", memAddress);
+			//printf("memAddress: %d\n", memAddress);
 			for(int i = memAddress; i < memAddress + 4; i++){
 				for(int j = 0; j < 8; j++){
 					MEM_output.memdata.insert(0, MEM[(i*4)+j]);
@@ -507,21 +507,22 @@ public:
 
 	void printRegisters() {
 		printf("//Register file:\n");
+		int r1, r2;
 		for (int i = 0; i < 32; i+=2){
-			printf("x%d: %s\tx%d: %s\n", i, trackCPU->RF[i], i+1, trackCPU->RF[i+1]);
+			r1 = (int) strtoull(string(trackCPU->RF[i]).c_str(), NULL, 2);
+			r2 = (int) strtoull(string(trackCPU->RF[i+1]).c_str(), NULL, 2);
+			printf("x%d: %d\tx%d: %d\n", i, r1, i+1, r2);
 		}
 		printf("//END of Register file\n");
 	}
 
 	void printMemory() {
-		for(int i = 0; i < 128; i+=4){
-			for(int j = 0; j < 4; j++){
-				printf("MEM[%d]: ", i+j);
-				for(int k = 0; k < 8; k++){
-					printf("%c", trackCPU->MEM[i+j][k]);
-				}
-				printf("\n");
-			}
+		int m1;
+		for(int i = 0; i < 128; i++){
+			printf("MEM[%d]: ", i);
+			m1 = (int) strtoull(string(trackCPU->MEM[i]).c_str(), NULL, 2);
+			printf("%d", m1);
+			printf("\n");
 		}
 	}
 
@@ -554,7 +555,7 @@ public:
 
 int main (int argc, char* argv[])
 {
-	printf("argc: %d\nargv[0]: %s, argv[1]: %s\n", argc, argv[0], argv[1]); // sanity check
+	//printf("argc: %d\nargv[0]: %s, argv[1]: %s\n", argc, argv[0], argv[1]); // sanity check
 	
 	/* This is the front end of your project. 
 	You need to first read the instructions that are stored in a file and load them into an instruction memory. 
@@ -650,7 +651,7 @@ int main (int argc, char* argv[])
 			myCPU.Mem();
 			myCPU.WB();
 			myStat.log();
-			printf("\n");
+			//printf("\n");
 		} else { // we should break the loop if the current instruction is BREAK instruction (i.e., if opcode == 0)
 			break;
 		}
@@ -675,17 +676,20 @@ int main (int argc, char* argv[])
 
 	// print the stats
 	printf("%d\n", myStat.numFetched);
-
+/*
 	printf("%d,", myStat.numR_type);
 	printf("%d,", myStat.numI_type);
 	printf("%d,", myStat.numS_type);
 	printf("%d,", myStat.numB_type);
 	printf("%d,", myStat.numU_type);
 	printf("%d\n", myStat.numJ_type);
-
+*/
 	printf("%d,", myStat.numSW);
 	printf("%d,", myStat.numLW);
-	printf("%d\n", myStat.numADD);
+	printf("%d,", myStat.numADD);
+	printf("%d\n", myStat.numB_type);
+
+	printf("0\n");
 
 	return 0; 
 }

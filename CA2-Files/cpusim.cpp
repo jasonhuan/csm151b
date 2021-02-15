@@ -53,6 +53,7 @@ public:
 	unsigned int PC;
 	char(* CPUinstMem)[4096][8];
 	char RF[32][32];
+	char MEM[32*4][8];
 	ReadData RF_output;
 	ALUOutput ALU_output;
 	MemOutput MEM_output;
@@ -171,7 +172,7 @@ public:
 
 		Controller(decodedInstruction);
 
-		//printf("_rs1: %s, rs2: %s\n", _rs1.c_str(), _rs2.c_str());
+		printf("_rs1: %s, _rs2: %s, type:%s\n", _rs1.c_str(), _rs2.c_str(), decodedInstruction.type.c_str());
 		RegisterFile(_rs1, _rs2, "0", "0", 0);
 
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
@@ -260,9 +261,10 @@ public:
 		RF_output.data1 = RF[ulli1];
 
 		// 2nd input into ALU is either rs2 or immediate
+		// if I-type, no rs2 exists
 		if(decodedInstruction.type == "I"){
 			RF_output.data2 = decodedInstruction.imm;
-		} else {
+		} else { // if R-type, S-type, B-type, put rs2 contents into RF_output.data2
 			ulli2 = (int) strtoull(_read_reg2.c_str(), NULL, 2);
 			RF_output.data2 = RF[ulli2];
 		}
@@ -297,7 +299,11 @@ public:
 			if(RF_output.data2 == ""){
 				data2 = 0;
 			} else {
-				data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				if(control.ALUSrc == 0){
+					data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				} else if (control.ALUSrc == 1){
+					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
+				}
 			}
 			printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 + data2;
@@ -327,7 +333,11 @@ public:
 			if(RF_output.data2 == ""){
 				data2 = 0;
 			} else {
-				data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				if(control.ALUSrc == 0){
+					data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				} else if (control.ALUSrc == 1){
+					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
+				}
 			}
 			printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 - data2;
@@ -359,7 +369,11 @@ public:
 			if(RF_output.data2 == ""){
 				data2 = 0;
 			} else {
-				data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				if(control.ALUSrc == 0){
+					data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				} else if (control.ALUSrc == 1){
+					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
+				}
 			}
 			printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 & data2;
@@ -391,7 +405,11 @@ public:
 			if(RF_output.data2 == ""){
 				data2 = 0;
 			} else {
-				data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				if(control.ALUSrc == 0){
+					data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+				} else if (control.ALUSrc == 1){
+					data2 = (int) strtoull(decodedInstruction.imm.c_str(), NULL, 2);
+				}
 			}
 			printf("data1: %d, data2: %d\n", data1, data2);
 			int temp_result = data1 | data2;
@@ -409,6 +427,19 @@ public:
 	    	}
 
 	    	printf("ALU_output.result:%s\n", ALU_output.result.c_str());
+		}
+	}
+
+	void Mem() {
+		MEM_output.memdata = ""; // flush memdata
+
+		int memAddress = (int) strtoull(ALU_output.result.c_str(), NULL, 2);
+		if(control.MemRe == 1){ // LW
+			for(int i = memAddress; i < memAddress + 4; i++){
+				for(int j = 0; j < 8; j++){
+					MEM_output.memdata.insert(0, MEM[((i-memAddress)*8)+j]);
+				}
+			}
 		}
 	}
 
@@ -461,7 +492,7 @@ public:
 	}
 
 	void printMemory() {
-		
+
 	}
 
 	void log(){
@@ -586,7 +617,7 @@ int main (int argc, char* argv[])
 
 		if(keepGoing){
 			myCPU.EX();
-			//myCPU.MEM();
+			myCPU.Mem();
 			myCPU.WB();
 			myStat.log();
 			printf("\n");

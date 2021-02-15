@@ -35,6 +35,11 @@ struct ReadData {
 	string data2; // 32 bits
 };
 
+struct ALUOutput {
+	int zero;
+	string result;
+};
+
 class CPU {
 
 public:
@@ -45,6 +50,7 @@ public:
 	char(* CPUinstMem)[4096][8];
 	char RF[32][32];
 	ReadData RF_output;
+	ALUOutput ALU_output;
 
 	CPU(int _PC, char (&_instMem)[4096][8]) {
 		PC = _PC;
@@ -131,6 +137,7 @@ public:
 		decodedInstruction.funct3 = _funct3;
 		decodedInstruction.rs1 = _rs1;
 
+		// compute correct immediate once instruction is decoded
 		if(_opcode == "0110011") { // R-type
 			decodedInstruction.type = "R";
 			decodedInstruction.rd = _rd;
@@ -160,7 +167,7 @@ public:
 		Controller(decodedInstruction);
 
 		//printf("_rs1: %s, rs2: %s\n", _rs1.c_str(), _rs2.c_str());
-		RegisterFile(_rs1, _rs2, "", "", 0);
+		RegisterFile(_rs1, _rs2, "0", "0", 0);
 
 		if(endCounter == 7){ // OPCODE = 000 0000 (END signal)
 			return false;
@@ -230,8 +237,6 @@ public:
 			control.MemtoReg = 0;
 			control.ALUOp = "0110"; // subtract
 		}
-
-		// compute correct immediate once instruction is decoded
 	}
 
 	// _read_reg1[5], _read_reg2[5], _write_data[32], _write_reg[5], _RegWrite[1]
@@ -243,23 +248,69 @@ public:
 
 		int ulli1, ulli2;
 		ulli1 = (int) strtoull(_read_reg1.c_str(), NULL, 2);
-		ulli2 = (int) strtoull(_read_reg2.c_str(), NULL, 2);
-		//printf("The decimal equivalent is: %d, %d.\n", ulli1, ulli2);
+		//printf("The decimal equivalent is: %d.\n", ulli1);
 		RF_output.data1 = RF[ulli1];
-		RF_output.data2 = RF[ulli2];
+
+		// 2nd input into ALU is either rs2 or immediate
+		if(decodedInstruction.type == "I"){
+			RF_output.data2 = decodedInstruction.imm;
+		} else {
+			ulli2 = (int) strtoull(_read_reg2.c_str(), NULL, 2);
+			RF_output.data2 = RF[ulli2];
+		}
 
 		if(_RegWrite == 1){ // write data to reg
 			int ulli3 = (int) strtoull(_write_reg.c_str(), NULL, 2);
 			for(int i = 0; i < 32; i++){
 				RF[ulli3][i] = _write_data[i];
 			}
-			string x = RF[ulli3]; // need to assign _write_data to RF[ulli3]
-			printf("_write_reg: %d, RF[_write_reg]:%s\n", ulli3, x.c_str());
+			//string x = RF[ulli3]; // need to assign _write_data to RF[ulli3]
+			//printf("_write_reg: %d, RF[_write_reg]:%s\n", ulli3, x.c_str());
 		}
 		return RF_output;
 	}
 
-	void WB(){
+	void EX() {
+		ALU_output.result = ""; // clear ALU_output cache
+
+		if(control.ALUOp == "0010"){ // add
+			printf("RF_output.data1: %s, RF_output.data2: %s\n", RF_output.data1.c_str(), RF_output.data2.c_str());
+			int data1, data2;
+			if(RF_output.data1 == ""){
+				data1 = 0;
+			} else {
+				data1 = (int) strtoull(RF_output.data1.c_str(), NULL, 2);
+			}
+
+			if(RF_output.data2 == ""){
+				data2 = 0;
+			} else {
+				data2 = (int) strtoull(RF_output.data2.c_str(), NULL, 2);
+			}
+			printf("data1: %d, data2: %d\n", data1, data2);
+			int temp_result = data1 + data2;
+	    	int binaryLoop = 0;
+	    	while(temp_result != 0){ // convert decimal number into binary and store in instMem
+	    		if(temp_result % 2 == 1){
+	    			ALU_output.result.insert(0, "1");
+	    		} else {
+	    			ALU_output.result.insert(0, "0");
+	    		}
+	    		temp_result = temp_result / 2;
+	    		binaryLoop++;
+	    	}
+
+	    	printf("ALU_output.result:%s\n", ALU_output.result.c_str());
+		} else if (control.ALUOp == "0110"){ // subtract
+
+		} else if (control.ALUOp == "0000"){ // AND
+
+		} else if (control.ALUOp == "0001"){ // OR
+
+		}
+	}
+
+	void WB() {
 		RegisterFile("00000", "00000", "00000001000000010000000100000001", "00101", 1);
 	}
 
@@ -416,6 +467,8 @@ int main (int argc, char* argv[])
 		keepGoing = myCPU.Decode();
 
 		if(keepGoing){
+			myCPU.EX();
+			//myCPU.MEM();
 			myCPU.WB();
 			myStat.log();
 		} else { // we should break the loop if the current instruction is BREAK instruction (i.e., if opcode == 0)
